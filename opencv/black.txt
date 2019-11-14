@@ -1,0 +1,63 @@
+import requests
+import time
+import flask,json
+import qrcode
+import pyzbar.pyzbar as pyzbarImageFilter 
+from PIL import Image,ImageEnhance,ImageFilter
+
+server = flask.Flask(__name__)
+@server.route('/index',methods=['get'])
+def getCode():
+	url = flask.request.values.get('url')
+	img = requests.get(url)
+	with open('1.jpg','wb') as f:
+		f.write(img.content)
+
+	I = Image.open('C:\\Users\\Administrator\\Desktop\\some\\py\\opencv\\1.jpg')
+
+	try:
+		en=ImageEnhance.Contrast(I) #增加对比度
+		en_end=en.enhance(10)
+		en_end.save('2.jpg')
+		code_url = pyzbar.decode(Image.open('C:\\Users\\Administrator\\Desktop\\some\\py\\opencv\\2.jpg'), symbols=[pyzbar.ZBarSymbol.QRCODE])[0][0].decode('utf-8')
+
+	except:
+		res = {'msg':'二维码不清晰', 'msg_code': 0}
+		return json.dumps(res, ensure_ascii=False)
+		#print('shen ma gui tu')
+		exit()
+
+	#code_url = pyzbar.decode(Image.open('C:\\Users\\Administrator\\Desktop\\some\\py\\opencv\\2.jpg'), symbols=[pyzbar.ZBarSymbol.QRCODE])[0][0].decode('utf-8')
+	shop = 'payapp.weixin.qq.com'
+
+	user = 'wxp://'
+
+	if shop in code_url or user in code_url:
+		res = {'msg':'二维码不清晰', 'msg_code': 0}
+		return json.dumps(res, ensure_ascii=False)
+		#print('weixin 111')
+	else:
+		#print('disanfan 2222')
+		#print(code_url)
+		res = {'msg':'这是我开发的第一个接口', 'msg_code': 0}
+		return json.dumps(res, ensure_ascii=False)
+
+	# img = qrcode.make(code_url)
+	# with open('test.png', 'wb') as f:
+	#     img.save(f)
+
+server.run(port=7777, debug=True, host='0.0.0.0')
+
+
+#r,g,b = I.split()  ##通道分离
+#g.show()
+#bluF = I.filter(ImageFilter.BLUR)           ##均值滤波      
+#conF = I.filter(ImageFilter.CONTOUR)  ##找轮廓
+#edgeF = I.filter(ImageFilter.FIND_EDGES)         ##边缘检测
+#I.show()
+#edgeF.show()
+#conF.save('2.jpg')
+#conF.show()
+#L = I.convert('L')
+#L.save('2.jpg')
+#L.show()
